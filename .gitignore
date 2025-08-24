@@ -1,0 +1,11 @@
+/.idea
+/.venv
+/dist
+/build
+
+build/
+devel/
+
+.DS_Store
+
+.python-version
