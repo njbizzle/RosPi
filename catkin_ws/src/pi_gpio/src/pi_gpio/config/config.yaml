@@ -1,0 +1,2 @@
+pi_gpio:
+  chip_path: /dev/gpiochip0
