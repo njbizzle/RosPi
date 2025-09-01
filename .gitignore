@@ -5,7 +5,15 @@
 
 build/
 devel/
+__pycache__/
+*.pyc
 
 .DS_Store
 
 .python-version
+
+/vscode_server_deps
+/vscode_server_deps_temp
+/docker_debian_arm64
+
+

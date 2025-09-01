@@ -1,0 +1,3 @@
+[submodule "catkin_ws/src/arducam_mini_2mp_plus/src/arducam/arducam"]
+	path = catkin_ws/src/arducam_mini_2mp_plus/src/arducam/arducam
+	url = https://github.com/ArduCAM/ArduCAM_USB_Camera_Shield_Python_Demo

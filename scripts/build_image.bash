@@ -1,10 +1,12 @@
 #!/bin/bash
 
 source scripts/bootstrap.bash
+docker context use $LOCAL_DOCKER_CONTEXT
+
 
 # Make the dist dirs and suppress any already exists errors
-mkdir $DIST > /dev/null 2>&1
-mkdir $IMAGE_DIST > /dev/null 2>&1
+mkdir $BUILD > /dev/null 2>&1
+mkdir $IMAGES > /dev/null 2>&1
 
 BASE=$CORE_BASE
 IMAGE=$CORE_IMAGE
@@ -12,15 +14,15 @@ IMAGE_PATH=$CORE_IMAGE_PATH
 PLATFORM="linux/arm64"
 
 pip freeze > requirements.txt
-cat $PI_REQUIREMENTS >> requirements.txt
 
+yes | docker image prune
 docker buildx build \
   --rm \
   --build-arg ROS_BASE=$BASE \
   --platform $PLATFORM \
   --progress=plain \
   -t $IMAGE . \
-  2>&1 | tee build.log
+  2>&1 | tee $BUILD/build.log
 
 docker save -o $IMAGE_PATH $IMAGE
 # Yes to overwriting existing files

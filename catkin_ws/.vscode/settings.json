@@ -1,0 +1,27 @@
+{
+  "configurations": [
+    {
+      "name": "ROS",
+      "includePath": [
+        "${workspaceFolder}/devel/include",
+        "/opt/ros/noetic/include/**"
+      ],
+      "defines": [],
+      "compilerPath": "/usr/bin/g++",
+      "cStandard": "c11",
+      "cppStandard": "c++14",
+      "intelliSenseMode": "gcc-x64"
+    }
+  ],
+  "version": 4,
+  "files.associations": {
+    "functional": "cpp",
+    "arducam.h": "c",
+    "sccb_bus.h": "c",
+    "ov5642_regs.h": "c",
+    "bcm283x_board_driver.h": "c",
+    "string_view": "cpp",
+    "array": "cpp",
+    "ranges": "cpp"
+  }
+}

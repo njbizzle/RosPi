@@ -14,12 +14,24 @@ RUN groupadd --gid $USER_GID $USERNAME \
   && adduser $USERNAME sudo \
   && sudo passwd -d $USERNAME
 
+# Create gpio and spi groups
+RUN groupadd -f gpio && groupadd -f spi \
+    && usermod -aG gpio,spi $USERNAME
+
+# # Set up udev rules so gpio/spi devices are accessible to these groups
+# RUN echo 'KERNEL=="gpiochip*", GROUP="gpio", MODE="0660"' > /etc/udev/rules.d/99-gpio.rules \
+#     && echo 'KERNEL=="spidev*", GROUP="spi", MODE="0660"' > /etc/udev/rules.d/99-spi.rules
+
 USER root
 
 # Update packages
 RUN apt-get update && apt-get install -y \
   iputils-ping \
+  git \
   wget \
+  gpiod \
+  libgpiod-dev \
+  curl ca-certificates \
 # We have to be using python3, python might point to 2.x.
   python3-pip \
 # Really need this.
@@ -27,8 +39,10 @@ RUN apt-get update && apt-get install -y \
 # We have to apt-get install this because the library
 # wraps a whole lot c libraries, which need to be installed
 # through a package manager like apt-get, this just does all that.
-  python3-libgpiod \
+# python3-libgpiod \
+  ros-noetic-rviz \
   ros-noetic-rqt-graph \
+  ros-noetic-rqt-image-view \
   ros-noetic-rospy-tutorials \
   ros-noetic-turtlesim \
 # Scary amount of data, refrain from this.
@@ -70,23 +84,31 @@ RUN apt-get update && apt-get install -y \
   libgl1-mesa-dri \
   && rm -rf /var/lib/apt/lists/*
 
+
 WORKDIR /ros_ws
 COPY requirements.txt /ros_ws
 
-# RUN wget -O /tmp/code.deb https://update.code.visualstudio.com/1.103.2/linux-deb-arm64/stable \
-#  && apt-get update \
-#  && apt-get install -y /tmp/code.deb \
+RUN wget -O /tmp/code.deb https://update.code.visualstudio.com/1.103.2/linux-deb-arm64/stable \
+ && apt-get update \
+ && apt-get install -y /tmp/code.deb
 #  && rm /tmp/code.deb
 
 RUN pip install --upgrade pip  \
   && pip install --no-cache-dir -r /ros_ws/requirements.txt
+# && pip install ArducamSDK
+# ^ Is explicitly installing arducam needed? (pip doesn't like it on the mac)
 
 COPY /catkin_ws /ros_ws/catkin_ws
 
 COPY scripts/remote_start/entrypoint.bash /entrypoint.bash
 COPY scripts/remote_start/bashrc /home/${USERNAME}/.bashrc
+COPY vscode_server_deps/.config /home/${USERNAME}/.config
+COPY vscode_server_deps/.dotnet /home/${USERNAME}/.dotnet
+COPY vscode_server_deps/.local /home/${USERNAME}/.local
+COPY vscode_server_deps/.vscode-server /home/${USERNAME}/.vscode-server
 
 RUN chown -R $USER_UID:$USER_GID /ros_ws
+RUN chown -R $USER_UID:$USER_GID /home/${USERNAME}
 
 # Specifying the full path helps bash run consistenly.
 # It then exports the bash enviroment variable so we 

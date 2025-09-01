@@ -10,26 +10,22 @@ fi
 export WORKSPACE="/robot"
 export CONTAINER_NAME="ros_container"
 
-export DIST="$PROJ_ROOT/dist"
-export IMAGE_DIST="$DIST/images"
+export PI_DOCKER_CONTEXT="pi_remote"
+export LOCAL_DOCKER_CONTEXT="default"
+
+export BUILD="$PROJ_ROOT/build"
+export IMAGES="$BUILD/images"
 
 export PI_USER="nmurphy"
-export PI_IP="10.42.0.1"
-export MAC_IP="10.42.0.198"
+export PI_IP="100.111.13.29" 
+export MAC_IP="100.127.95.45"
 
 export PI_PROJ_ROOT="/home/nmurphy/robot"
-export IMAGE_DIST_REMOTE="$PI_PROJ_ROOT/images"
-
-export PI_REQUIREMENTS="$PROJ_ROOT/pi_requirements.txt"
+export IMAGES_REMOTE="$PI_PROJ_ROOT/images"
 
 export CORE_BASE=ros:noetic-ros-core
-# export DESKTOP_BASE=seunmul/ros:noetic-full-arm64
 
 export CORE_IMAGE=core
-# export DESKTOP_IMAGE=desktop
 
-export CORE_IMAGE_PATH="$IMAGE_DIST/core.tar.gz"
-export CORE_IMAGE_PATH_REMOTE="$IMAGE_DIST_REMOTE/core.tar.gz"
-# export DESKTOP_IMAGE_PATH="$IMAGE_DIST/desktop.tar"
-
-
+export CORE_IMAGE_PATH="$IMAGES/core.tar.gz"
+export CORE_IMAGE_PATH_REMOTE="$IMAGES_REMOTE/core.tar.gz"

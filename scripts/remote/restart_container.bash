@@ -1,6 +1,9 @@
 #!/bin/bash
 
 source scripts/bootstrap.bash
+docker context use $PI_DOCKER_CONTEXT
+
+yes | docker image prune
 
 open -a XQuartz
 export DISPLAY=:0
@@ -14,6 +17,7 @@ ssh $PI_USER@$PI_IP << EOF
 
   sudo docker stop \$CONTAINER_NAME
   sudo docker rm \$CONTAINER_NAME
+
   
   sudo docker run \
     -e DISPLAY=\$MAC_IP:0 \
@@ -21,6 +25,10 @@ ssh $PI_USER@$PI_IP << EOF
     --user ros \
     --name \$CONTAINER_NAME \
     --network host \
+    --device /dev/gpiomem0 \
+    --device /dev/i2c-13 \
+    --device /dev/spidev0.0 \
+    --device /dev/mem \
     \$CORE_IMAGE \
     $@
 EOF
