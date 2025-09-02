@@ -1,3 +1,6 @@
 source /opt/ros/noetic/setup.bash
 # Add the catkin ws setup script
 source /ros_ws/catkin_ws/devel/setup.bash
+
+export ROS_PACKAGE_PATH=/ros_ws/catkin_ws/ORB_SLAM3_NOETIC/Examples/ROS:$ROS_PACKAGE_PATH
+export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH

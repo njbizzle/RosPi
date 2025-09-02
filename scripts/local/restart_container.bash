@@ -3,7 +3,7 @@
 source scripts/bootstrap.bash
 docker context use $LOCAL_DOCKER_CONTEXT
 
-source scripts/local/save_stop_container.bash
+docker stop $CONTAINER_NAME
 docker rm $CONTAINER_NAME > /dev/null 2>&1
 
 open -a XQuartz

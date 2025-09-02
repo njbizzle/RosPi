@@ -31,6 +31,7 @@ RUN apt-get update && apt-get install -y \
   wget \
   gpiod \
   libgpiod-dev \
+  libepoxy-dev \
   curl ca-certificates \
 # We have to be using python3, python might point to 2.x.
   python3-pip \
@@ -40,6 +41,8 @@ RUN apt-get update && apt-get install -y \
 # wraps a whole lot c libraries, which need to be installed
 # through a package manager like apt-get, this just does all that.
 # python3-libgpiod \
+  ros-noetic-camera-calibration \
+  ros-noetic-image-pipeline \
   ros-noetic-rviz \
   ros-noetic-rqt-graph \
   ros-noetic-rqt-image-view \
@@ -84,7 +87,6 @@ RUN apt-get update && apt-get install -y \
   libgl1-mesa-dri \
   && rm -rf /var/lib/apt/lists/*
 
-
 WORKDIR /ros_ws
 COPY requirements.txt /ros_ws
 
@@ -99,6 +101,47 @@ RUN pip install --upgrade pip  \
 # ^ Is explicitly installing arducam needed? (pip doesn't like it on the mac)
 
 COPY /catkin_ws /ros_ws/catkin_ws
+
+RUN apt-get install python3-rosdep \
+  && rosdep init \
+  && rosdep update
+
+WORKDIR /ros_ws/catkin_ws/
+RUN git clone https://github.com/RAFALAMAO/ORB_SLAM3_NOETIC/
+WORKDIR /ros_ws/catkin_ws/ORB_SLAM3_NOETIC/Thirdparty
+RUN git clone https://github.com/stevenlovegrove/Pangolin.git
+WORKDIR /ros_ws/catkin_ws/ORB_SLAM3_NOETIC/Thirdparty/Pangolin
+RUN mkdir build && cd build && \
+  cmake .. -DCMAKE_CXX_FLAGS="-Wno-error -Wno-type-limits -Wno-deprecated-copy" && \
+  make && make install
+
+WORKDIR /ros_ws/catkin_ws/ORB_SLAM3_NOETIC
+
+# Run make instead of make -j
+RUN sed -i 's/make -j/make/g' build.sh && \
+  sed -i 's/make -j/make/g' build_ros.sh
+
+# Update CMakeLists to use CPP 17
+RUN rm CMakeLists.txt
+RUN rm Examples/ROS/ORB_SLAM3/CMakeLists.txt
+COPY orbslam_cmakelists/orbslam.txt CMakeLists.txt
+COPY orbslam_cmakelists/orbslam_ros.txt Examples/ROS/ORB_SLAM3/CMakeLists.txt
+
+# Export env 
+# ENV ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH}:/ros_ws/catkin_ws/ORB_SLAM3_NOETIC/Examples/ROS
+# ENV LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+
+# From ORB_SLAM3 root
+RUN find Examples -type f -print0 | xargs -0 sed -i 's/monotonic/steady/g'
+RUN find src -type f -print0 | xargs -0 sed -i 's/mnFullBAIdx++;/mnFullBAIdx = true;/g'
+
+RUN chmod +x build.sh build_ros.sh
+RUN ./build.sh
+
+
+RUN echo "testingtesting"
+RUN echo $ROS_PACKAGE_PATH
+RUN ls /opt/ros/noetic
 
 COPY scripts/remote_start/entrypoint.bash /entrypoint.bash
 COPY scripts/remote_start/bashrc /home/${USERNAME}/.bashrc
